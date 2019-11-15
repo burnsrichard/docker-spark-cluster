@@ -1,8 +1,14 @@
 #!/bin/bash
 
+# total number of nodes (including master)
+N=$2
 # Bring the services up
 function startServices {
-  docker start nodemaster node2 node3 node4
+  docker start nodemaster
+  for i in `seq 2 $N`;
+  do
+    docker start node$i
+  done
   sleep 5
   echo ">> Starting hdfs ..."
   docker exec -u hadoop -it nodemaster hadoop/sbin/start-dfs.sh
@@ -12,9 +18,13 @@ function startServices {
   sleep 5
   echo ">> Starting Spark ..."
   docker exec -u hadoop -d nodemaster /home/hadoop/sparkcmd.sh start
-  docker exec -u hadoop -d node2 /home/hadoop/sparkcmd.sh start
-  docker exec -u hadoop -d node3 /home/hadoop/sparkcmd.sh start
-  docker exec -u hadoop -d node4 /home/hadoop/sparkcmd.sh start
+
+  for i in `seq 2 $N`;
+  do
+    docker exec -u hadoop -d node$i /home/hadoop/sparkcmd.sh start
+  done
+  #docker exec -u hadoop -d node3 /home/hadoop/sparkcmd.sh start
+  #docker exec -u hadoop -d node4 /home/hadoop/sparkcmd.sh start
   show_info
 }
 
@@ -32,10 +42,13 @@ fi
 
 if [[ $1 = "stop" ]]; then
   docker exec -u hadoop -d nodemaster /home/hadoop/sparkcmd.sh stop
-  docker exec -u hadoop -d node2 /home/hadoop/sparkcmd.sh stop
-  docker exec -u hadoop -d node3 /home/hadoop/sparkcmd.sh stop
-  docker exec -u hadoop -d node4 /home/hadoop/sparkcmd.sh stop
-  docker stop nodemaster node2 node3 node4
+  for i in `seq 2 $N`;
+  do
+    docker exec -u hadoop -d node$i /home/hadoop/sparkcmd.sh stop
+  done
+  #docker exec -u hadoop -d node3 /home/hadoop/sparkcmd.sh stop
+  #docker exec -u hadoop -d node4 /home/hadoop/sparkcmd.sh stop
+  #docker stop nodemaster node2 node3 node4
   exit
 fi
 
@@ -47,9 +60,12 @@ if [[ $1 = "deploy" ]]; then
   # 3 nodes
   echo ">> Starting nodes master and worker nodes ..."
   docker run -dP --network sparknet --name nodemaster -h nodemaster -it sparkbase
-  docker run -dP --network sparknet --name node2 -it -h node2 sparkbase
-  docker run -dP --network sparknet --name node3 -it -h node3 sparkbase
-  docker run -dP --network sparknet --name node4 -it -h node4 sparkbase
+  for i in `seq 2 $N`;
+  do
+    docker run -dP --network sparknet --name node$i -it -h node$i sparkbase
+  done
+  #docker run -dP --network sparknet --name node3 -it -h node3 sparkbase
+  #docker run -dP --network sparknet --name node4 -it -h node4 sparkbase
 
   # Format nodemaster
   echo ">> Formatting hdfs ..."
@@ -58,13 +74,20 @@ if [[ $1 = "deploy" ]]; then
   exit
 fi
 
+if [[ $1 = "remove" ]]; then
+  docker ps -a -q --filter=ancestor=sparkbase | xargs -I {} docker rm {}
+  exit
+fi
+
 if [[ $1 = "info" ]]; then
   show_info
   exit
 fi
 
-echo "Usage: cluster.sh deploy|start|stop"
+echo "Usage: cluster.sh build|deploy|start|stop|remove|info"
+echo "                 build  - build the base images for containers"
 echo "                 deploy - create a new Docker network"
 echo "                 start  - start the existing containers"
-echo "                 stop   - stop the running containers" 
-echo "                 info   - useful URLs" 
+echo "                 stop   - stop the running containers"
+echo "                 remove - cleanup all existing containers and base images"
+echo "                 info   - useful URLs"
