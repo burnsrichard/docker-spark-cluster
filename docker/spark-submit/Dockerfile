@@ -7,5 +7,6 @@ ENV SPARK_SUBMIT_ARGS=""
 ENV SPARK_APPLICATION_ARGS ""
 
 RUN pip3 install jupyter
+RUN pip3 install 'prompt-toolkit==1.0.15'
 
 CMD ["/bin/bash", "/spark-submit.sh"]
