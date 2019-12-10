@@ -5,6 +5,7 @@ services:
     ports:
       - "9090:8080"
       - "7077:7077"
+      - "8888:8888"
     volumes:
        - ./apps:/opt/spark-apps
        - ./data:/opt/spark-data
@@ -23,18 +24,18 @@ services:
     volumes:
        - ./apps:/opt/spark-apps
        - ./data:/opt/spark-data
-  spark-submit:
-    image: spark-submit:latest
-    depends_on:
-      - spark-master
-    ports:
-      - "8888:8888"
-    environment:
-      - SPARK_MASTER=spark://spark-master:7077
-      - SPARK_WORKER_CORES=1
-      - SPARK_WORKER_MEMORY=1G
-      - SPARK_DRIVER_MEMORY=128m
-      - SPARK_EXECUTOR_MEMORY=256m
-    volumes:
-       - ./apps:/opt/spark-apps
-       - ./data:/opt/spark-data
+  #spark-submit:
+  #  image: spark-submit:latest
+  #  depends_on:
+  #    - spark-master
+  #  ports:
+  #    - "8888:8888"
+  #  environment:
+  #    - SPARK_MASTER=spark://spark-master:7077
+  #    - SPARK_WORKER_CORES=1
+  #    - SPARK_WORKER_MEMORY=1G
+  #    - SPARK_DRIVER_MEMORY=128m
+  #    - SPARK_EXECUTOR_MEMORY=256m
+  #  volumes:
+  #     - ./apps:/opt/spark-apps
+  #     - ./data:/opt/spark-data
