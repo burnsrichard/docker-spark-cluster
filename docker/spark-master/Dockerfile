@@ -8,7 +8,8 @@ ENV SPARK_MASTER_LOG /spark/logs
 
 RUN pip3 install jupyter
 RUN pip3 install 'prompt-toolkit==1.0.15'
+RUN pip3 install flask
 
-EXPOSE 8080 7077 6066 8888 4040 9009
+EXPOSE 8080 7077 6066 8888 4040 9009 5001
 
 CMD ["/bin/bash", "/start-master.sh"]
