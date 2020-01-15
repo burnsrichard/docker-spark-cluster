@@ -24,6 +24,7 @@ RUN cd "/tmp" && \
 
 # Add Dependencies for PySpark
 RUN apt-get install -qqq -y python3 python3-pip python3-numpy python3-matplotlib python3-scipy python3-pandas python3-simpy ipython3
+RUN pip3 install tweepy
 RUN update-alternatives --install "/usr/bin/python" "python" "$(which python3)" 1
 
 #Scala instalation

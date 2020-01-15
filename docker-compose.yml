@@ -14,6 +14,8 @@ services:
       - "SPARK_LOCAL_IP=spark-master"
   spark-worker:
     image: spark-worker:latest
+    ports:
+      - "8081"
     depends_on:
       - spark-master
     environment:
@@ -25,3 +27,10 @@ services:
     volumes:
        - ./apps:/opt/spark-apps
        - ./data:/opt/spark-data
+networks:
+  default:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet:  17.18.0.1/16
